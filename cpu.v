@@ -91,6 +91,7 @@ module cpu( clk, rst );
     wire    [31:0]  IDEXE_RD2;
     wire    [31:0]  IDEXE_Imm32;
     wire    [31:0]  IDEXE_ins;
+    wire    [31:0]  IDEXE_pc;
     wire    [1:0]   IDEXE_RegDst;    //Rt Rd R31
     wire    [2:0]   IDEXE_NPCOp;     
     wire    [3:0]   IDEXE_DMRd;      //lw lh lb lhu lbu
@@ -102,16 +103,20 @@ module cpu( clk, rst );
     ID_EXE  ID_EXE( .clk(clk), .rst(rst), .IDEXE_stall(IDEXE_stall), IDEXE_flush(IDEXE_flush), //控制信号
                     .RD1(RD1), .RD2(RD2), .rd(rd)  //RF
                     .Imm32(Imm32),                 //EXT
-                    .ins(IFID_ins), .RegDst(RegDst),   .NPCOp(NPCOp),     .DMRd(DMRd), .toReg(toReg), .ALUOp(ALUOp), 
-                    .DMWr(DMWr),    .ALUSrc1(ALUSrc1), .ALUSrc2(ALUSrc2), .RFWr(RFWr),
+                    .ins(IFID_ins), .pc(IFID_pc), .RegDst(RegDst), .NPCOp(NPCOp), .DMRd(DMRd), .toReg(toReg), .ALUOp(ALUOp), 
+                    .DMWr(DMWr), .ALUSrc1(ALUSrc1), .ALUSrc2(ALUSrc2), .RFWr(RFWr),
                     //输出
-                    .IDEXE_RD1(IDEXE_RD1), .IDEXE_RD2(IDEXE_RD2), .IDEXE_Imm32(IDEXE_Imm32), .IDEXE_rd(IDEXE_rd),
-                    .IDEXE_ins(IDEXE_ins), .IDEXE_RegDst(IDEXE_RegDst), .IDEXE_NPCOp(IDEXE_NPCOp), .IDEXE_DMRd(IDEXE_DMRd), 
+                    .IDEXE_RD1(IDEXE_RD1), .IDEXE_RD2(IDEXE_RD2), .IDEXE_Imm32(IDEXE_Imm32),   .IDEXE_rd(IDEXE_rd),
+                    .IDEXE_ins(IDEXE_ins), .IDEXE_pc(IDEXE_pc),   .IDEXE_RegDst(IDEXE_RegDst), .IDEXE_NPCOp(IDEXE_NPCOp), .IDEXE_DMRd(IDEXE_DMRd), 
                     .IDEXE_toReg(IDEXE_toReg), .IDEXE_ALUOp(IDEXE_ALUOp), .IDEXE_DMWr(IDEXE_DMWr),
                     .IDEXE_ALUSrc1(IDEXE_ALUSrc1), .IDEXE_ALUSrc2(IDEXE_ALUSrc2), .IDEXE_RFWr(IDEXE_RFWr) );
 
-//------------------------EX Stage--------------------------
 
+
+
+
+
+//------------------------EX Stage--------------------------
 
     //ALUMux_A (reg or shamt)
     wire    [31:0] ALUSrcAout;
@@ -137,7 +142,7 @@ module cpu( clk, rst );
                             .s(ALU_B),.y(B) );
 
     //ALU
-    wire          Zero;
+    wire            Zero;
     wire    [31:0]  ALUout;
     alu      alu    ( .A(A), .B(B), .ALUOp(IDEXE_ALUOp), .C(ALUout), .Zero(Zero) );
 
@@ -148,66 +153,53 @@ module cpu( clk, rst );
     wire    EXEMEM_DMWr;
     wire    [4:0] EXEMEM_rd;
 
-    ForwardingUnit ForwardingUnit( .EXEMEM_RFWr(EXEMEM_RFWr),   .EXEMEM_rd(EXMEM_rd),    .IDEXE_rs(IDEXE_ins[25:21]),
+    ForwardingUnit ForwardingUnit( .EXEMEM_RFWr(EXEMEM_RFWr),   .EXEMEM_rd(EXEMEM_rd),    .IDEXE_rs(IDEXE_ins[25:21]),
                                    .IDEXE_rt(IDEXE_ins[20:16]), .MEMWB_RFWr(MEMWB_RFWr), .MEMWB_rd(MEMWB_rd),
                                    .ALU_A(ALU_A),.ALU_B(ALU_B), .DMdata_ctrl(DMdata_ctrl),
                                    .MEMWB_DMRd(MEMWB_DMRd),     .EXEMEM_DMWr(EXEMEM_DMWr));
 
+    wire    EXEMEM_RFWr;
+    wire    [4:0]   EXEMEM_rd;
+    wire    [31:0]  EXEMEM_ins;
+    wire    [31:0]  EXEMEM_pc;
+    wire    [1:0]   EXEMEM_DMWr;  
+    wire    [3:0]   EXEMEM_DMRd;      
+    wire    [1:0]   EXEMEM_toReg;     //PC2Reg Mem2Reg ALU2Reg
+    wire    [31:0]  EXEMEM_DMdata;     
+    wire    [31:0]  EXEMEM_ALUout; 
 
-
-
-
-
-
-
-
-    //DM
-    wire    [1:0]   DMWr;
-    wire    [3:0]   DMRd;
-    wire    [31:0]  DMout;
-    DM      DM      ( .clk(clk), .DMWr(DMWr), .DMRd(DMRd), .DMaddr(C), .DMdata(RD2),
-                      .DMout(DMout) );
-
-
-
-
-
-
-
-
+    EXE_MEM EXE_MEM( .clk(clk), .rst(rst),
+                     .ins(IDEXE_ins), .pc(IDEXE_pc), .rd(IDEXE_rd), .toReg(IDEXE_toReg), 
+                     .DMRd(IDEXE_DMRd), .DMWr(IDEXE_DMWr), .RFWr(IDEXE_RFWr), .DMdata(ALUSrcBout), .ALUout(ALUout),
+                     //output
+                     .EXEMEM_ins(EXEMEM_ins), .EXEMEM_pc(EXEMEM_pc), .EXEMEM_rd(EXEMEM_rd), .EXEMEM_toReg(EXEMEM_toReg), 
+                     .EXEMEM_DMRd(EXEMEM_DMRd), .EXEMEM_DMWr(EXEMEM_DMWr), .EXEMEM_RFWr(EXEMEM_RFWr), 
+                     .EXEMEM_DMdata(EXEMEM_DMdata), .EXEMEM_ALUout(EXEMEM_ALUout) );
 
 
 //-------------------MEM Stage-------------------------------
 
-    //ForwardC
-    wire [31:0] EXMEMMemWriteDataFinal;
-    mux2 MUX_ForwardC(.d0(EXMEMMemWriteData),.d1(WriteDataFinal),.s(ForwardC),.y(EXMEMMemWriteDataFinal));
+    //MEM to MEM forwarding
+    wire    [31:0]  DMdata;
+    mux2    DMdata_mux ( .d0(EXEMEM_DMdata), .d1(WD), .s(DMdata_ctrl), .y(DMdata) );
 
-    //DataMemory
-    wire [31:0] EXMEMMemReadData;
-    DM DM(.clk(clk),.MemR(EXMEMMemRead),.MemWr(EXMEMMemWrite),.MemWrBits(EXMEMMemWrBits),.MemRBits(EXMEMMemRBits)
-    ,.addr(EXMEMALUResult),.data(EXMEMMemWriteDataFinal),.ReadData(EXMEMMemReadData));
+    //DM
+    wire    [31:0]  DMout;
+    DM      DM      ( .clk(clk), .DMWr(EXEMEM_DMWr), .DMRd(EXEMEM_DMRd), 
+                      .DMaddr(EXEMEM_ALUout), .DMdata(DMdata), .DMout(DMout) );
 
     //MEMWBReg
-    wire MEMWBStall;
-    assign MEMWBStall = 1'b0;
-    wire MEMWBFlush;
-    assign MEMWBFlush = 1'b0;
-    wire [31:0] MEMWBInstruction;
-    wire [31:0] MEMWBPCPlus4;
-    wire [31:0] MEMWBALUResult;
-    wire [31:0] MEMWBMemoryData;
-    wire [1:0] MEMWBMemtoReg;
-    MEMWBReg MEMWBReg(.clk(clk),.rst(rst),.MEMWBStall(MEMWBStall),.MEMWBFlush(MEMWBFlush),.EXMEMInstruction(EXMEMInstruction)
-    ,.MEMWBInstruction(MEMWBInstruction),.EXMEMPCPlus4(EXMEMPCPlus4),.MEMWBPCPlus4(MEMWBPCPlus4),.EXMEMALUResult(EXMEMALUResult)
-    ,.MEMWBALUResult(MEMWBALUResult),.MemoryData(EXMEMMemReadData),.MEMWBMemoryData(MEMWBMemoryData),.EXMEMRegRd(EXMEMRegRd)
-    ,.MEMWBRegRd(MEMWBRegRd),.EXMEMRegWrite(EXMEMRegWrite),.MEMWBRegWrite(MEMWBRegWrite),.EXMEMMemtoReg(EXMEMMemtoReg),.MEMWBMemtoReg(MEMWBMemtoReg)
-    ,.EXMEMMemRead(EXMEMMemRead),.MEMWBMemRead(MEMWBMemRead));
-
-
-
-
-
+    wire    [31:0]  MEMWB_ins;
+    wire    [31:0]  MEMWB_pc;
+    wire    [31:0]  MEMWB_ALUout;
+    wire    [31:0]  MEMWB_DMout;
+    wire    [1:0]   MEMWB_toReg;
+    module MEM_WB ( .clk(clk), .rst(rst),
+                    .ins(EXEMEM_ins), .pc(EXEMEM_pc), .rd(EXEMEM_rd), .toReg(EXEMEM_toReg), 
+                    .RFWr(EXEMEM_RFWr), .DMRd(EXEMEM_DMRd), .DMdata(EXEMEM_DMdata), .ALUout(EXEMEM_ALUout),
+                    //output
+                    .MEMWB_ins(MEMWB_ins), .MEMWB_pc(MEMWB_pc), .MEMWB_rd(MEMWB_rd), .MEMWB_toReg(MEMWB_toReg), 
+                    .MEMWB_DMRd(MEMWB_DMRd), .MEMWB_RFWr(MEMWB_RFWr), .MEMWB_DMout(MEMWB_DMout), .MEMWB_ALUout(MEMWB_ALUout) );
 
 
     //--------------------------WB Stage---------------------------------
@@ -216,20 +208,6 @@ module cpu( clk, rst );
     mux4 toRegmux( .d0(MEMWB_ALUout), .d1(MEMWB_DMout), .d2(MEMWB_pc + 4), .d3(0),   //d3 is not used 
                    .s(MEMWB_toReg),   .y (WD));
 
-
-
-
-
-    //MUX
-    wire            ALUSrc1;
-    wire            ALUSrc2;
-
-    wire    [1:0]   toReg;
-
- 
-    mux4 toRegmux   ( .d0(C),          .d1(DMout),      .d2(pc+4),      .d3(0), .s(toReg),  .y(WD) );
-
-    //control unit
 
 
 endmodule
