@@ -1,3 +1,4 @@
+`include "ctrl_encode_def.v"
 module MEM_WB ( clk, rst,
 	            ins, pc, rd, toReg, RFWr, DMRd, DMout, ALUout,
 	            //output

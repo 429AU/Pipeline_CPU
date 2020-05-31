@@ -2,12 +2,12 @@
 
 module NPC( pc, NPCOp, IMM, Rt, RD1, RD2, npc );  // next pc module
    
-   input  Zero;
    input  [31:0] pc;        // pc
    input  [2:0]  NPCOp;     // next pc operation
    input  [25:0] IMM;       // immediate INS[25:0]
    input  [4:0]  Rt;        // bltz, bgez
    input  [31:0] RD1;       // jr, jalr
+   input  [31:0] RD2;       
 
    output reg [31:0] npc;   // next pc
    

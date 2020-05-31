@@ -1,5 +1,6 @@
+`include "ctrl_encode_def.v"
 module ID_EXE(  clk, rst, IDEXE_stall, IDEXE_flush,
-	            RD1, RD2, rd  //RF
+	            RD1, RD2, rd,  //RF
 	            Imm32,        // EXT
 	            ins, pc, RegDst, NPCOp, DMRd, toReg, ALUOp, DMWr, ALUSrc1, ALUSrc2, RFWr,
 	            //output
@@ -80,9 +81,9 @@ begin
         IDEXE_ALUOp   <= `ALU_NOP;
         IDEXE_DMWr    <= `DMWr_NOP;
     end
-    else if(!IDEXStall)
+    else if(!IDEXE_stall)
     begin
-        if(IDEXFlush)
+        if(IDEXE_flush)
         begin
             IDEXE_ALUSrc1 <= `reg;
             IDEXE_ALUSrc2 <= `reg;

@@ -24,26 +24,27 @@ module cpu( clk, rst );
     //PC & NPC
     wire    [31:0]  pc;
     wire    [31:0]  npc;
-    PC      PC      ( .clk(clk),       .rst(rst),       .npc(npc),   .pc(pc) );
+    wire            PC_stall;
+
+    assign PC_stall = 1'b0;
+
+    PC      PC      ( .clk(clk), .rst(rst), .stall(PC_stall), .npc(npc), .pc(pc) );
 
 
     //IM
     wire    [31:0] ins;
     IM      IM      ( .pc(pc), .ins(ins) );
 
-    //PC module
-    wire [31:0] PC_o;
-    wire PCWrite;
-    PC my_PC(.clk(clk),.rst(rst),.NPC(NPC),.PC(PC_o),.PC_Write_Final(PCWrite));
-
-
-
-
     //IF_ID
-    wire IFID_stall;
-    wire IFID_flush;
-    wire [31:0] IFID_ins;
-    wire [31:0] IFID_pc;
+    wire    IFID_stall;
+    wire    IFID_flush;
+
+    assign IFID_stall = 1'b0;
+    assign IFID_stall = 1'b0;
+
+    wire    [31:0]   IFID_ins;
+    wire    [31:0]   IFID_pc;
+
     IF_ID    IF_ID( .clk(clk), .rst(rst), .IFID_stall(IFID_stall), .IFID_flush(IFID_flush),  //控制信号
                     .pc(pc),   .ins(ins),                                                    //输入
                     .IFID_pc(IFID_pc),    .IFID_ins(IFID_ins));                              //输出
@@ -100,8 +101,8 @@ module cpu( clk, rst );
     wire    [1:0]   IDEXE_DMWr;      //sw sh sb
 
 
-    ID_EXE  ID_EXE( .clk(clk), .rst(rst), .IDEXE_stall(IDEXE_stall), IDEXE_flush(IDEXE_flush), //控制信号
-                    .RD1(RD1), .RD2(RD2), .rd(rd)  //RF
+    ID_EXE  ID_EXE( .clk(clk), .rst(rst), .IDEXE_stall(IDEXE_stall), .IDEXE_flush(IDEXE_flush), //控制信号
+                    .RD1(RD1), .RD2(RD2), .rd(rd),  //RF
                     .Imm32(Imm32),                 //EXT
                     .ins(IFID_ins), .pc(IFID_pc), .RegDst(RegDst), .NPCOp(NPCOp), .DMRd(DMRd), .toReg(toReg), .ALUOp(ALUOp), 
                     .DMWr(DMWr), .ALUSrc1(ALUSrc1), .ALUSrc2(ALUSrc2), .RFWr(RFWr),
@@ -154,19 +155,15 @@ module cpu( clk, rst );
     wire    [4:0] EXEMEM_rd;
 
     ForwardingUnit ForwardingUnit( .EXEMEM_RFWr(EXEMEM_RFWr),   .EXEMEM_rd(EXEMEM_rd),    .IDEXE_rs(IDEXE_ins[25:21]),
-                                   .IDEXE_rt(IDEXE_ins[20:16]), .MEMWB_RFWr(MEMWB_RFWr), .MEMWB_rd(MEMWB_rd),
+                                   .IDEXE_rt(IDEXE_ins[20:16]), .MEMWB_RFWr(MEMWB_RFWr),  .MEMWB_rd(MEMWB_rd),
                                    .ALU_A(ALU_A),.ALU_B(ALU_B), .DMdata_ctrl(DMdata_ctrl),
                                    .MEMWB_DMRd(MEMWB_DMRd),     .EXEMEM_DMWr(EXEMEM_DMWr));
 
-    wire    EXEMEM_RFWr;
-    wire    [4:0]   EXEMEM_rd;
     wire    [31:0]  EXEMEM_ins;
     wire    [31:0]  EXEMEM_pc;
-    wire    [1:0]   EXEMEM_DMWr;  
     wire    [3:0]   EXEMEM_DMRd;      
     wire    [1:0]   EXEMEM_toReg;     //PC2Reg Mem2Reg ALU2Reg
-    wire    [31:0]  EXEMEM_DMdata;     
-    wire    [31:0]  EXEMEM_ALUout; 
+    wire    [31:0]  EXEMEM_DMdata;      
 
     EXE_MEM EXE_MEM( .clk(clk), .rst(rst),
                      .ins(IDEXE_ins), .pc(IDEXE_pc), .rd(IDEXE_rd), .toReg(IDEXE_toReg), 
@@ -194,12 +191,12 @@ module cpu( clk, rst );
     wire    [31:0]  MEMWB_ALUout;
     wire    [31:0]  MEMWB_DMout;
     wire    [1:0]   MEMWB_toReg;
-    module MEM_WB ( .clk(clk), .rst(rst),
-                    .ins(EXEMEM_ins), .pc(EXEMEM_pc), .rd(EXEMEM_rd), .toReg(EXEMEM_toReg), 
-                    .RFWr(EXEMEM_RFWr), .DMRd(EXEMEM_DMRd), .DMdata(EXEMEM_DMdata), .ALUout(EXEMEM_ALUout),
-                    //output
-                    .MEMWB_ins(MEMWB_ins), .MEMWB_pc(MEMWB_pc), .MEMWB_rd(MEMWB_rd), .MEMWB_toReg(MEMWB_toReg), 
-                    .MEMWB_DMRd(MEMWB_DMRd), .MEMWB_RFWr(MEMWB_RFWr), .MEMWB_DMout(MEMWB_DMout), .MEMWB_ALUout(MEMWB_ALUout) );
+    MEM_WB  MEM_WB ( .clk(clk), .rst(rst),
+                     .ins(EXEMEM_ins), .pc(EXEMEM_pc), .rd(EXEMEM_rd), .toReg(EXEMEM_toReg), 
+                     .RFWr(EXEMEM_RFWr), .DMRd(EXEMEM_DMRd), .DMout(EXEMEM_DMout), .ALUout(EXEMEM_ALUout),
+                     //output
+                     .MEMWB_ins(MEMWB_ins), .MEMWB_pc(MEMWB_pc), .MEMWB_rd(MEMWB_rd), .MEMWB_toReg(MEMWB_toReg), 
+                     .MEMWB_DMRd(MEMWB_DMRd), .MEMWB_RFWr(MEMWB_RFWr), .MEMWB_DMout(MEMWB_DMout), .MEMWB_ALUout(MEMWB_ALUout) );
 
 
     //--------------------------WB Stage---------------------------------

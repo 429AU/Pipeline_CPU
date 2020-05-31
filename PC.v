@@ -8,13 +8,13 @@ module PC( clk, rst, stall, npc, pc );
 
   initial
     begin
-      PC <= 32'h0000_0000;
+      pc <= 32'h0000_0000;
     end
 
   always @(posedge clk, posedge rst)
   begin
     if (rst) 
-      PC <= 32'h0000_0000;
+      pc <= 32'h0000_0000;
     else
       begin
         if(!stall)

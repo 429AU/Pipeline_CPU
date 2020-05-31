@@ -1,6 +1,6 @@
 `include "ctrl_encode_def.v"
-module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMRd, EXEMEM_DMWr, EXEMEM_rd,
-                       IDEXE_rs,    IDEXE_rt,   ALU_A,      AUL_B,       DMdata_ctrl,
+module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMRd, EXEMEM_DMWr, EXEMEM_rd, MEMWB_rd,
+                       IDEXE_rs,    IDEXE_rt,   ALU_A,      ALU_B,       DMdata_ctrl,
                        ALUSrc1,     ALUSrc2);
     input        EXEMEM_RFWr;
     input        MEMWB_RFWr;
