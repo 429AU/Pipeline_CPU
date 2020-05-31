@@ -1,27 +1,41 @@
-module IF_ID ( clk, rst, IF_pc, IF_ins, ID_pc, ID_ins);
+module IF_ID ( clk, rst, IFID_stall, IFID_flush, 
+               pc, ins, 
+               IFID_pc, IFID_ins );
 
   input              clk;
   input              rst;
-  input       [31:0] IF_pc;  
-  input       [31:0] IF_ins;
+  input              IFID_stall;
+  input              IFID_flush;  
+  input       [31:0] pc; 
+  input       [31:0] ins;
 
-  output reg  [31:0] ID_pc;
-  output reg  [31:0] ID_ins;
+  output reg  [31:0] IFID_pc;
+  output reg  [31:0] IFID_ins;
   
     initial
     begin
-        PCPlus4_o <= 32'b0;
-        IFIDInstruction <= 32'b0;
+        IFID_pc  <= 32'b0;
+        IFID_ins <= 32'b0;
     end
 
     always @(posedge clk) begin
     	if (rst) begin
-    		ID_pc  <= 32'b0;
-    		ID_ins <= 32'b0;
+    		IFID_pc  <= 32'b0;
+    		IFID_ins <= 32'b0;
     	end
-    	else begin
-    		ID_pc  <= IF_pc;
-    		ID_ins <= IF_ins;
-    	end
+      
+      else if(!IFID_stall)
+        begin
+            if(IFID_flush)
+                begin
+                    IFID_pc  <= 32'b0;
+                    IFID_ins <= 32'b0;
+                end
+            else
+                begin
+                    IFID_pc  <= pc;
+                    IFID_ins <= ins;
+                end
+        end
     end
 endmodule

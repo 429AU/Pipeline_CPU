@@ -11,7 +11,7 @@
 
   integer i;
 
-  always @(posedge clk, posedge rst)
+  always @(negedge clk, posedge rst)
     if (rst) begin    //  reset
       for (i=0; i<32; i=i+1)
         rf[i] <= 0; //  i;
