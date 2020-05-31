@@ -1,6 +1,6 @@
 `include "ctrl_encode_def.v"
 
-module NPC( pc, NPCOp, IMM, Rt, RD1, Zero, npc );  // next pc module
+module NPC( pc, NPCOp, IMM, Rt, RD1, RD2, npc );  // next pc module
    
    input  Zero;
    input  [31:0] pc;        // pc
@@ -18,8 +18,8 @@ module NPC( pc, NPCOp, IMM, Rt, RD1, Zero, npc );  // next pc module
    always @(*) begin
       case (NPCOp)
           `NPC_PLUS4:  npc = PCPLUS4;
-          `NPC_BEQ:    npc = (Zero) ? (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00}) : (PCPLUS4);  
-          `NPC_BNE:    npc = (Zero) ? (PCPLUS4) : (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00});
+          `NPC_BEQ:    npc = (RD1 == RD2) ? (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00}) : (PCPLUS4);  
+          `NPC_BNE:    npc = (RD1 == RD2) ? (PCPLUS4) : (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00});
           `NPC_JUMP:   npc = {PCPLUS4[31:28], IMM[25:0], 2'b00};         
           `NPC_REG:    npc = RD1;
           `NPC_BLEZ:   npc = (RD1 ==  0 || RD1[31] == 1) ? (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00}) : (PCPLUS4);

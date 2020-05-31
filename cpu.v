@@ -9,11 +9,9 @@
 `include "RF.v"
 `include "ctrl_encode_def.v"
 
-module cpu( clk, rst, Instruction, Pc );
+module cpu( clk, rst );
     input           clk;
     input           rst;
-    output  [31:0]  Instruction;
-    output  [31:0]  Pc;
 
     wire    [31:0]  Ins;
 

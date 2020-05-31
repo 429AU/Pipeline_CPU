@@ -106,3 +106,9 @@
 `define LBU        6'b100100
 `define SH         6'b101001
 `define SB         6'b101000
+
+//Forwarding
+`define default    2'b00
+`define EXE2EXE    2'b01
+`define MEM2EXE    2'b10
+`define MEM2MEM    1'b1

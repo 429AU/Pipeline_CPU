@@ -1,7 +1,7 @@
 `include "ctrl_encode_def.v"
-module IM( pc, Ins );
+module IM( pc, ins );
     input    [9:0]    pc;
-    output   [31:0]   Ins;
+    output   [31:0]   ins;
 
     reg [7:0]   InsMem [1023:0];
     reg [31:0]  fd     [254:0];   //read codes
@@ -22,6 +22,6 @@ module IM( pc, Ins );
       end
     end
 
-    assign  Ins = { InsMem[pc+3], InsMem[pc+2], InsMem[pc+1], InsMem[pc] };
+    assign  ins = { InsMem[pc+3], InsMem[pc+2], InsMem[pc+1], InsMem[pc] };
 
 endmodule
