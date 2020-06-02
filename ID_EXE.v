@@ -1,5 +1,5 @@
 `include "ctrl_encode_def.v"
-module ID_EXE(  clk, rst, IDEXE_stall, IDEXE_flush,
+module ID_EXE(  clk, rst, IDEXE_stall,
 	            RD1, RD2, rd,  //RF
 	            Imm32,        // EXT
 	            ins, pc, RegDst, NPCOp, DMRd, toReg, ALUOp, DMWr, ALUSrc1, ALUSrc2, RFWr,
@@ -8,7 +8,7 @@ module ID_EXE(  clk, rst, IDEXE_stall, IDEXE_flush,
 	            IDEXE_ins, IDEXE_pc, IDEXE_RegDst, IDEXE_NPCOp, IDEXE_DMRd, IDEXE_toReg, IDEXE_ALUOp, 
 	            IDEXE_DMWr, IDEXE_ALUSrc1, IDEXE_ALUSrc2, IDEXE_RFWr);
 
-    input clk, rst, IDEXE_stall, IDEXE_flush;
+    input clk, rst, IDEXE_stall;
     input ALUSrc1;
     input ALUSrc2;
     input RFWr;
@@ -73,7 +73,7 @@ begin
         IDEXE_rd      <= 5'b0;
         IDEXE_Imm32   <= 32'b0;
         IDEXE_ins     <= 32'b0;
-        IDEXE_pc     <= 32'b0;
+        IDEXE_pc      <= 32'b0;
         IDEXE_RegDst  <= `Rd;
         IDEXE_NPCOp   <= `NPC_PLUS4;
         IDEXE_DMRd    <= `DMRd_NOP;
@@ -83,42 +83,42 @@ begin
     end
     else if(!IDEXE_stall)
     begin
-        if(IDEXE_flush)
-        begin
-            IDEXE_ALUSrc1 <= `reg;
-            IDEXE_ALUSrc2 <= `reg;
-            IDEXE_RFWr    <= 1'b0;
-            IDEXE_RD1     <= 32'b0;
-            IDEXE_RD2     <= 32'b0;
-            IDEXE_rd      <= 5'b0;
-            IDEXE_Imm32   <= 32'b0;
-            IDEXE_ins     <= 32'b0;
-            IDEXE_pc     <= 32'b0;
-            IDEXE_RegDst  <= `Rd;
-            IDEXE_NPCOp   <= `NPC_PLUS4;
-            IDEXE_DMRd    <= `DMRd_NOP;
-            IDEXE_toReg   <= `ALU2Reg;
-            IDEXE_ALUOp   <= `ALU_NOP;
-            IDEXE_DMWr    <= `DMWr_NOP;
-        end
-        else
-        begin
+//        if(IDEXE_flush)
+//        begin
+//            IDEXE_ALUSrc1 <= `reg;
+//            IDEXE_ALUSrc2 <= `reg;
+//            IDEXE_RFWr    <= 1'b0;
+//            IDEXE_RD1     <= 32'b0;
+//            IDEXE_RD2     <= 32'b0;
+//            IDEXE_rd      <= 5'b0;
+//            IDEXE_Imm32   <= 32'b0;
+//            IDEXE_ins     <= 32'b0;
+//            IDEXE_pc      <= 32'b0;
+//            IDEXE_RegDst  <= `Rd;
+//            IDEXE_NPCOp   <= `NPC_PLUS4;
+//            IDEXE_DMRd    <= `DMRd_NOP;
+//            IDEXE_toReg   <= `ALU2Reg;
+//            IDEXE_ALUOp   <= `ALU_NOP;
+//            IDEXE_DMWr    <= `DMWr_NOP;
+//       end
+//       else
+        //begin
             IDEXE_ALUSrc1 <= ALUSrc1;
             IDEXE_ALUSrc2 <= ALUSrc2;
-            IDEXE_RFWr    <= IDEXE_RFWr;
+            IDEXE_RFWr    <= RFWr;
             IDEXE_RD1     <= RD1;
             IDEXE_RD2     <= RD2;
             IDEXE_rd      <= rd;
             IDEXE_Imm32   <= Imm32;
             IDEXE_ins     <= ins;
-            IDEXE_pc     <= pc;
+            IDEXE_pc      <= pc;
             IDEXE_RegDst  <= RegDst;
             IDEXE_NPCOp   <= NPCOp;
             IDEXE_DMRd    <= DMRd;
             IDEXE_toReg   <= toReg;
             IDEXE_ALUOp   <= ALUOp;
             IDEXE_DMWr    <= DMWr;
-        end
+        //end
     end
 end
 endmodule

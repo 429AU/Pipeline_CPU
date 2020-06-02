@@ -1,7 +1,8 @@
 `include "ctrl_encode_def.v"
 
-module NPC( pc, NPCOp, IMM, Rt, RD1, RD2, npc );  // next pc module
-   
+module NPC( clk, pc, NPCOp, IMM, Rt, RD1, RD2, npc );  // next pc module
+
+   input         clk;
    input  [31:0] pc;        // pc
    input  [2:0]  NPCOp;     // next pc operation
    input  [25:0] IMM;       // immediate INS[25:0]
@@ -14,8 +15,13 @@ module NPC( pc, NPCOp, IMM, Rt, RD1, RD2, npc );  // next pc module
    wire [31:0] PCPLUS4;
    
    assign PCPLUS4 = pc + 4; // pc + 4
-   
-   always @(*) begin
+
+  initial
+    begin
+      npc <= 32'h0000_0004;
+    end
+
+   always @(negedge clk) begin
       case (NPCOp)
           `NPC_PLUS4:  npc = PCPLUS4;
           `NPC_BEQ:    npc = (RD1 == RD2) ? (PCPLUS4 + {{14{IMM[15]}}, IMM[15:0], 2'b00}) : (PCPLUS4);  

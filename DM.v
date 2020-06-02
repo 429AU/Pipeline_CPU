@@ -14,6 +14,7 @@ module DM( clk, DMWr, DMRd, DMaddr, DMdata, DMout );
 	begin
 		for (i = 0; i < 1023; i = i + 1)
         	RAM[i] <= 0;
+    DMout <= 32'b0;
 	end
 
 always@(*) begin

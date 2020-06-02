@@ -1,8 +1,9 @@
-module PC( clk, rst, stall, npc, pc );
+module PC( clk, rst, PC_stall, jump, npc, pc );
 
   input              clk;
   input              rst;
-  input              stall;
+  input              jump;
+  input              PC_stall;
   input       [31:0] npc;
   output reg  [31:0] pc;
 
@@ -17,8 +18,11 @@ module PC( clk, rst, stall, npc, pc );
       pc <= 32'h0000_0000;
     else
       begin
-        if(!stall)
-          pc <= npc;
+        if(!PC_stall)
+          if(jump)
+              pc <= npc;
+          else
+              pc <= pc + 4;
         else
           pc <= pc;
       end
