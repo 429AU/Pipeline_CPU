@@ -11,7 +11,7 @@ module IM( pc, ins );
 
     initial begin
       addr = 0;
-      $readmemh("G:\\Pipeline_CPU\\test_code\\extendedtest.dat", fd);
+      $readmemh("G:\\Pipeline_CPU\\test_code\\hazard_test2.dat", fd);
       for (i = 0; i < 254; i= i + 1) begin
         temp = fd[i];
         InsMem[addr]   = temp[7:0];

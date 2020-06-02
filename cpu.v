@@ -78,10 +78,11 @@ module cpu( clk, rst );
     mux2    NPC2  ( .d0(RD2), .d1(ALUout), .s(NPC_F2), .y(NPC_2) ); 
 
     //SW  forwarding
-    wire            SW_ctrl;
+    wire    [31:0]  DMout;
+    wire    [1:0]   SW_ctrl;
     wire    [31:0]  RD2final;
 
-    mux2    SW   ( .d0(RD2),  .d1(EXEMEM_ALUout), .s(SW_ctrl), .y(RD2final) ); 
+    mux4    SW   ( .d0(RD2),  .d1(EXEMEM_ALUout), .d2(DMout),  .d3(0), .s(SW_ctrl), .y(RD2final) ); 
 
     //NPC
     wire    [2:0]   NPCOp;
@@ -183,7 +184,7 @@ module cpu( clk, rst );
                                    .NPC_F1(NPC_F1),             .NPC_F2(NPC_F2),           .IFID_rs(IFID_ins[25:21]),   .IFID_rt(IFID_ins[20:16]),
                                    .ALU_A(ALU_A),.ALU_B(ALU_B), .DMdata_ctrl(DMdata_ctrl), .IDEXE_DMWr(IDEXE_DMWr),     .IFID_DMWr(DMWr),
                                    .MEMWB_DMWr(MEMWB_DMWr),     .EXEMEM_DMWr(EXEMEM_DMWr), .SW_ctrl(SW_ctrl),           .MEMWB_DMRd(MEMWB_DMRd),
-                                   .ALUSrc1(ALUSrc1),           .ALUSrc2(ALUSrc2));
+                                   .ALUSrc1(ALUSrc1),           .ALUSrc2(IDEXE_ALUSrc2),   .EXEMEM_DMRd(EXEMEM_DMRd));
 
     wire    [31:0]  EXEMEM_ins;
     wire    [31:0]  EXEMEM_pc;     
@@ -206,7 +207,7 @@ module cpu( clk, rst );
     mux2    DMdata_mux ( .d0(EXEMEM_DMdata), .d1(WD), .s(DMdata_ctrl), .y(DMdata) );
 
     //DM
-    wire    [31:0]  DMout;
+
     DM      DM      ( .clk(clk), .DMWr(EXEMEM_DMWr), .DMRd(EXEMEM_DMRd), 
                       .DMaddr(EXEMEM_ALUout), .DMdata(DMdata), .DMout(DMout) );
 

@@ -1,5 +1,5 @@
 `include "ctrl_encode_def.v"
-module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMWr, EXEMEM_DMWr,
+module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMWr, EXEMEM_DMWr, EXEMEM_DMRd,
                        EXEMEM_rd,   MEMWB_rd,   IFID_DMWr,  MEMWB_DMRd,
                        IFID_rs,     IFID_rt,    IDEXE_rd,   IDEXE_RFWr,  IDEXE_DMWr,
                        IDEXE_rs,    IDEXE_rt,   ALU_A,      ALU_B,       DMdata_ctrl,
@@ -13,6 +13,7 @@ module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMWr, EXEMEM_DMWr,
     input [1:0]  IDEXE_DMWr;
     input [1:0]  MEMWB_DMWr;
     input [3:0]  MEMWB_DMRd;
+    input [3:0]  EXEMEM_DMRd;
     input [1:0]  EXEMEM_DMWr;
     input        ALUSrc1;
     input        ALUSrc2;
@@ -28,7 +29,7 @@ module ForwardingUnit( EXEMEM_RFWr, MEMWB_RFWr, MEMWB_DMWr, EXEMEM_DMWr,
     output reg [1:0] ALU_B;
     output reg       NPC_F1;
     output reg       NPC_F2;
-    output reg       SW_ctrl;
+    output reg [1:0] SW_ctrl;
     output reg       DMdata_ctrl;
 
 initial
@@ -38,7 +39,7 @@ initial
         NPC_F1      <= 1'b0;
         NPC_F2      <= 1'b0;
         DMdata_ctrl <= 1'b0;
-        SW_ctrl     <= 1'b0;
+        SW_ctrl     <= 2'b0;
     end
 
 always @(*)
@@ -48,7 +49,7 @@ always @(*)
         NPC_F1      <= 1'b0;
         NPC_F2      <= 1'b0;
         DMdata_ctrl <= 1'b0;
-        SW_ctrl     <= 1'b0;
+        SW_ctrl     <= 2'b0;
 
         //NPC forwarding
         if(IDEXE_RFWr && (IDEXE_rd != 0) && (IDEXE_rd != 31))
@@ -61,7 +62,7 @@ always @(*)
         if(EXEMEM_RFWr && (EXEMEM_rd != 0) && (EXEMEM_rd != 31))
             begin
                 if( (IDEXE_rs == EXEMEM_rd) ) ALU_A <=  `EXE2EXE;
-                if( (IDEXE_rt == EXEMEM_rd) && (IDEXE_DMWr == `DMWr_NOP) ) ALU_B <=  `EXE2EXE;
+                if( (IDEXE_rt == EXEMEM_rd) && ALUSrc2 == `reg && (IDEXE_DMWr == `DMWr_NOP) ) ALU_B <=  `EXE2EXE;
             end
 
 
@@ -85,9 +86,11 @@ always @(*)
             DMdata_ctrl <= 1'b1; //MEM2MEM
             end
 
-        if( IFID_DMWr != `DMWr_NOP && IFID_rt == EXEMEM_rd && (EXEMEM_rd != 0) && (EXEMEM_rd != 31) && EXEMEM_DMWr == `DMWr_NOP)
-            begin
-            SW_ctrl <= 1'b1; //SW
-            end 
+        if( IFID_DMWr != `DMWr_NOP && IFID_rt == EXEMEM_rd && (EXEMEM_rd != 0) && (EXEMEM_rd != 31) 
+            && EXEMEM_DMWr == `DMWr_NOP )
+                if( EXEMEM_DMRd == `DMRd_NOP ) 
+                    SW_ctrl <= 2'b01; //other, xxx, SW
+                else
+                    SW_ctrl <= 2'b10; //LW, xxx, SW 
     end
 endmodule
