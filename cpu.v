@@ -172,10 +172,10 @@ module cpu( clk, rst );
     wire    [3:0] MEMWB_DMRd;
     wire    [1:0] EXEMEM_DMWr;
 
-    ForwardingUnit ForwardingUnit( .EXEMEM_RFWr(EXEMEM_RFWr),   .EXEMEM_rd(EXEMEM_rd),    .IDEXE_rs(IDEXE_ins[25:21]), .IDEXE_rt(IDEXE_ins[20:16]), 
-                                   .MEMWB_RFWr(MEMWB_RFWr),     .MEMWB_rd(MEMWB_rd),      .IDEXE_rd(IDEXE_rd),         .IDEXE_RFWr(IDEXE_RFWr),
-                                   .NPC_F1(NPC_F1),             .NPC_F2(NPC_F2),          .IFID_rs(IFID_ins[25:21]),   .IFID_rt(IFID_ins[20:16]),
-                                   .ALU_A(ALU_A),.ALU_B(ALU_B), .DMdata_ctrl(DMdata_ctrl),
+    ForwardingUnit ForwardingUnit( .EXEMEM_RFWr(EXEMEM_RFWr),   .EXEMEM_rd(EXEMEM_rd),     .IDEXE_rs(IDEXE_ins[25:21]), .IDEXE_rt(IDEXE_ins[20:16]), 
+                                   .MEMWB_RFWr(MEMWB_RFWr),     .MEMWB_rd(MEMWB_rd),       .IDEXE_rd(IDEXE_rd),         .IDEXE_RFWr(IDEXE_RFWr),
+                                   .NPC_F1(NPC_F1),             .NPC_F2(NPC_F2),           .IFID_rs(IFID_ins[25:21]),   .IFID_rt(IFID_ins[20:16]),
+                                   .ALU_A(ALU_A),.ALU_B(ALU_B), .DMdata_ctrl(DMdata_ctrl), .IDEXE_DMWr(IDEXE_DMWr),
                                    .MEMWB_DMRd(MEMWB_DMRd),     .EXEMEM_DMWr(EXEMEM_DMWr),
                                    .ALUSrc1(ALUSrc1),           .ALUSrc2(ALUSrc2));
 
