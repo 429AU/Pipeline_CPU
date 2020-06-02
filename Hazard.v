@@ -34,6 +34,7 @@ always @(*)
                 IFID_stall  <= 1'b1;
                 IDEXE_stall <= 1'b1;
             end
+        
         else if( npc != pc + 4 )
                     begin
                         PC_stall    <= 1'b0;
@@ -41,6 +42,7 @@ always @(*)
                         IFID_stall  <= 1'b0;
                         IFID_flush  <= 1'b1;  
                     end
+        
         else
             begin
                 IFID_stall  <= 1'b0;
